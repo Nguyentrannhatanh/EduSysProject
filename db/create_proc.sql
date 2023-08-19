@@ -1,0 +1,66 @@
+﻿Use EDUSYS_DATABASE
+-- report: MANH-HOTEN-DIEM
+--- STORE PROCEDURE ---
+GO
+create PROC sp_BANGDIEM (@MAKH INT)
+AS BEGIN 
+    SELECT NH.MANH, NH.HOTEN, HV.DIEM 
+    FROM HOCVIEN HV INNER JOIN NGUOIHOC NH ON NH.MANH = HV.MANH
+    WHERE HV.MAKH = @MAKH
+    ORDER BY HV.DIEM DESC 
+END
+GO
+
+
+
+GO
+create PROC sp_DIEMCHUYENDE
+AS BEGIN
+    SELECT TENCD CHUYENDE,
+            COUNT(MAHV) SOHV,
+            MIN(DIEM) THAPNHAT,
+            MAX(DIEM) CAONHAT,
+            AVG(DIEM) TRUNGBINH
+    FROM KHOAHOC KH INNER JOIN HOCVIEN HV ON KH.MAKH = HV.MAKH 
+                    INNER JOIN CHUYENDE CD ON CD.MACD = KH.MACD
+    GROUP BY TENCD
+END
+GO
+
+
+GO
+create PROC sp_THONGKEDOANHTHU(@YEAR INT)
+AS BEGIN
+    SELECT TENCD CHUYENDE,  
+           COUNT(DISTINCT KH.MAKH) SOKH, 
+           COUNT(HV.MAHV) SOHV, 
+           SUM(KH.HOCPHI) DOANHTHU,  
+           MIN(KH.HOCPHI) THAPNHAT, 
+           MAX(KH.HOCPHI) CAONHAT, 
+           AVG(KH.HOCPHI) TRUNGBINH
+    FROM KHOAHOC KH INNER JOIN HOCVIEN HV ON KH.MAKH = HV.MAKH 
+                    INNER JOIN CHUYENDE CD ON CD.MACD = KH.MACD
+    WHERE YEAR(NGAYKG) = @YEAR
+    GROUP BY TENCD
+END
+GO
+
+
+GO
+create PROC sp_THONGKENGUOIHOC 
+AS BEGIN
+    SELECT YEAR(NGAYDK) NAM, 
+           COUNT(*) SOLUONG, 
+           MIN(NGAYDK) DAUTIEN, 
+           MAX(NGAYDK) CUOICUNG
+    FROM NGUOIHOC
+    GROUP BY YEAR(NGAYDK)
+END
+GO
+
+	SELECT DISTINCT year(NgayKG) Year FROM KhoaHoc ORDER BY Year DESC
+
+-- insert into ChuyenDe(MaCD, TenCD, HocPhi, ThoiLuong, Hinh, MoTa) values(?,?,?,?,?,?)
+-- update ChuyenDe SET MaCD=?, TenCD=?, HocPhi=?, ThoiLuong=?, Hinh=?, MoTa=? where MaCD=?
+-- Delete from ChuyenDe Where MaCD=?
+-- Select * from ChuyenDe where MaCD= ?
